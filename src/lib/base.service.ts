@@ -255,7 +255,7 @@ export class BaseService {
         success: false,
         error: true,
         data: e.request?.data,
-        message: '',
+        message: e.message,
         status:e.status
       }
       // continue regardless of error

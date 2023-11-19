@@ -40,6 +40,7 @@ describe('Test du service de base',()=>{
         callback: "www.example",
 
       });
+
       expect(result.status).toBe(200);
       expect(result.success).toBe(true);
       expect(result.data).toBeInstanceOf(Object);
