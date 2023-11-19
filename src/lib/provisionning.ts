@@ -1,6 +1,5 @@
-/* eslint-disable no-empty */
 
-import axios, { AxiosInstance } from 'axios';
+import axios, {  AxiosInstance, isAxiosError } from 'axios';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -19,10 +18,10 @@ export class ProvioningController {
     this.headers['Ocp-Apim-Subscription-Key'] = pimarykey;
     this.headers['X-Target-Environment'] = 'sandbox';
     this.axiosInstance = axios.create({
-      baseURL: 'https://sandbox.momodeveloper.mtn.com/v1_0/apiuser/',
+      baseURL: 'https://sandbox.momodeveloper.mtn.com/v1_0/apiuser',
       headers: this.headers
     });
-    this.referenceId = '3fa300fe-c071-414a-ab68-5bf760d1f9e7';
+    this.referenceId = this.generateRefence();
   }
   generateRefence() {
     return uuidv4();
@@ -43,15 +42,37 @@ export class ProvioningController {
       });
       if (reponse.status == 201) {
         return {
-          userApi: this.referenceId
+          message: '',
+          success: true,
+          error: false,
+          status: reponse.status,
+          data: {
+            userApi: this.referenceId
+          }
         };
       }
-      return null;
-    } catch (e) {}
-    return null;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        console.log(this.referenceId);
+        return {
+          message: error.message,
+          success: false,
+          error: true,
+          status: error.status,
+          data: null
+        };
+      }
+    }
+    return {
+      message: '',
+      success: false,
+      error: true,
+      status: 400,
+      data: null
+    };
   }
   async createApikey() {
-    const url = `${this.referenceId}/apikey`;
+    const url = `/${this.referenceId}/apikey`;
     const option = {
       headers: {
         ...this.headers
@@ -63,10 +84,32 @@ export class ProvioningController {
       }>(url, {}, option);
       if (response.status == 201) {
         return {
-          apikey: response.data.apiKey
+          satus: response.status,
+          message: '',
+          success: true,
+          error: false,
+          data: {
+            apikey: response.data.apiKey
+          }
         };
       }
-    } catch (e) {}
-    return null;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        return {
+          message: error.message,
+          success: false,
+          error: true,
+          status: error.status,
+          data: null
+        };
+      }
+    }
+    return {
+      message: '',
+      success: false,
+      error: true,
+      status: 400,
+      data: null
+    };
   }
 }

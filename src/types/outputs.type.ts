@@ -12,6 +12,12 @@ export type Payer = {
   readonly partyIdType: string;
   readonly partyId: string;
 };
+export type PlayloadBalance = {
+
+    availableBalance: string,
+    currency: string
+
+}
 export type ErrorReason = {
   readonly code: string;
   readonly message: string;
