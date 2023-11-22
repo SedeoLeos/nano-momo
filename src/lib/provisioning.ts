@@ -1,12 +1,12 @@
 
+
 import axios, {  AxiosInstance, isAxiosError } from 'axios';
 
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuid4 } from 'uuid';
+import {ErrorResult, SuccessResult} from '../types/outputs.type'
 
-export class ProvioningController {
-  static createUserId() {
-    throw new Error('Method not implemented.');
-  }
+export class Provisioning {
+
   protected readonly headers: any = {};
   protected readonly axiosInstance: AxiosInstance;
   protected readonly referenceId: string;
@@ -21,10 +21,10 @@ export class ProvioningController {
       baseURL: 'https://sandbox.momodeveloper.mtn.com/v1_0/apiuser',
       headers: this.headers
     });
-    this.referenceId = this.generateRefence();
+    this.referenceId = this.generateReference();
   }
-  generateRefence() {
-    return uuidv4();
+  generateReference() {
+    return uuid4();
   }
 
   async createUserId() {
@@ -37,39 +37,28 @@ export class ProvioningController {
     };
 
     try {
-      const reponse = await this.axiosInstance.post('', body, {
+      const response = await this.axiosInstance.post('', body, {
         headers
       });
-      if (reponse.status == 201) {
-        return {
-          message: '',
-          success: true,
-          error: false,
-          status: reponse.status,
+      if (response.status == 201) {
+        return new SuccessResult({
+          status: response.status,
           data: {
             userApi: this.referenceId
           }
-        };
+        });
       }
     } catch (error) {
       if (isAxiosError(error)) {
-        console.log(this.referenceId);
-        return {
-          message: error.message,
-          success: false,
-          error: true,
-          status: error.status,
-          data: null
-        };
-      }
+        return new ErrorResult({status:error.status,message:error.message,data:error.response?.data})
     }
-    return {
-      message: '',
-      success: false,
-      error: true,
+  }
+    return new ErrorResult({
       status: 400,
-      data: null
-    };
+      data:null,
+      message:''
+  })
+
   }
   async createApikey() {
     const url = `/${this.referenceId}/apikey`;
@@ -83,33 +72,26 @@ export class ProvioningController {
         readonly apiKey: string;
       }>(url, {}, option);
       if (response.status == 201) {
-        return {
-          satus: response.status,
-          message: '',
-          success: true,
-          error: false,
+        return new SuccessResult({
+          status: response.status,
           data: {
             apikey: response.data.apiKey
           }
-        };
+        });
       }
     } catch (error) {
       if (isAxiosError(error)) {
-        return {
+        return new ErrorResult( {
           message: error.message,
-          success: false,
-          error: true,
           status: error.status,
-          data: null
-        };
+          data: error.response?.data
+        });
       }
     }
-    return {
+    return new ErrorResult({
       message: '',
-      success: false,
-      error: true,
       status: 400,
       data: null
-    };
+    });
   }
 }

@@ -1,5 +1,24 @@
-
-
+/**
+ * Multiplies a value by 2. (Also a full example of TypeDoc's functionality.)
+ *
+ * ### Example (es module)
+ * ```js
+ * import { double } from 'typescript-starter'
+ * console.log(double(4))
+ * // => 8
+ * ```
+ *
+ * ### Example (commonjs)
+ * ```js
+ * var double = require('typescript-starter').double;
+ * console.log(double(4))
+ * // => 8
+ * ```
+ *
+ * @param value - Comment describing the `value` parameter.
+ * @returns Comment describing the return type.
+ * @anotherNote Some other value.
+ */
 import querystring from 'querystring';
 
 import axios, { AxiosInstance, isAxiosError } from 'axios';
@@ -15,14 +34,18 @@ import {
   RequestToDepotInput,
   ValidateAccountHolderStatusInput,
 } from '../types/inputs.type';
+
 import {
-  PlayloadAccessToken,
-  PlayloadBalance,
-  PlayloadBcauthorizeResponse,
-  PlayloadOauth2,
-  PlayloadRequestToPayResult,
-  PlayloadUserInfo,
-  PlayloadUserinfoWithConsent,
+  ErrorResult,
+  PayloadAccessToken,
+  PayloadAuthorizeResponse,
+  PayloadBalance,
+  PayloadOauth2,
+  PayloadRequestToPayResult,
+  PayloadUserInfo,
+  PayloadUserinfoWithConsent,
+  SuccessResult,
+  isErrorResult,
 } from '../types/outputs.type';
 
 export type BaseServiceOptions = {
@@ -46,6 +69,7 @@ export class BaseService {
       baseURL: this.baseUrl,
       headers: this.headers,
     });
+    
   }
   setToken(token: string, type: 'Basic' | 'Bearer' = 'Bearer'): string {
     const _token = token.replace(/\s/g, '');
@@ -55,158 +79,183 @@ export class BaseService {
     const { user_api, api_key } = data;
     try {
       const token = Buffer.from(user_api + ':' + api_key).toString('base64');
-      const authorisation = this.setToken(token, 'Basic');
+      const authorization = this.setToken(token, 'Basic');
       const headers = this.headers;
-      headers['Authorization'] = authorisation;
-      const response = await this.axiosInstance.post<PlayloadAccessToken>(
-        `https://sandbox.momodeveloper.mtn.com/collection/token/`,
+      headers['Authorization'] = authorization;
+      const response = await this.axiosInstance.post<PayloadAccessToken>(
+        `/token/`,
         {},
         { headers }
       );
       if (response.status == 200) {
-        return {
-          satus:response.status,
-          message:'',
-          success:true,
-          error:false,
-          data:response.data,
-
-        }
+        return new SuccessResult({
+          status: response.status,
+          data: response.data,
+        });
       }
     } catch (e) {
-      if(isAxiosError(e)){
-        console.log(e);
-        return {
-          status:e.status,
-          message:e.message,
-          success:false,
-          error:true,
-          data:null,
-        }
+      if (isAxiosError(e)) {
+        return new ErrorResult({
+          status: e.status,
+          message: e.message,
+          data: e.response.data,
+        });
       }
-      // console.log(e.response)
     }
-    return {
-      status:400,
-      message:'',
-      success:false,
-      error:true,
-      data:null,
-    };
+    return new ErrorResult({
+      status: 400,
+      message: '',
+      data: null,
+    });
   }
   async bcAuthorize(data: BcAuthorizeInput, body: BodyBcAuthorize) {
     const url = this.baseUrl + '/v1_0/bc-authorize';
     const { api_key, user_api, callback } = data;
-    const authPlayload = await this.createAccessToken({
+    const authPayload = await this.createAccessToken({
       api_key,
       user_api,
     });
-    if (!authPlayload.success) return null;
+
+    if (isErrorResult(authPayload)) return authPayload;
+
     const headers = this.headers;
 
     headers['X-Callback-Url'] = callback ? callback : this.callback;
     headers['Content-Type'] = 'application/x-www-form-urlencoded';
-    headers['Authorization'] = this.setToken(authPlayload.data.access_token);
+    headers['Authorization'] = this.setToken(authPayload.data.access_token);
     try {
-      const response =
-        await this.axiosInstance.post<PlayloadBcauthorizeResponse>(
-          url,
-          querystring.stringify(body.toObject()),
-          { headers }
-        );
-      if (response.status == 200) {
-        return response.data;
-      }
-    } catch (error) {
-      // continue regardless of error
-    }
-    return null;
-  }
-  async createOauth2Token(data: BcAuthorizeInput, body: BodyOauth2Token) {
-    const url = 'v1_0/oauth2/token';
-    const { api_key, user_api } = data;
-    const auth = await this.createAccessToken({
-      api_key,
-      user_api,
-    });
-    if (!auth.success) return null;
-    const headers = this.headers;
-    headers['Content-Type'] = 'application/x-www-form-urlencoded';
-    headers['Authorization'] = 'Bearer' + auth.data.access_token;
-    try {
-      const response = await this.axiosInstance.post<PlayloadOauth2>(
+      const response = await this.axiosInstance.post<PayloadAuthorizeResponse>(
         url,
         querystring.stringify(body.toObject()),
         { headers }
       );
       if (response.status == 200) {
-        return response.data;
+        return new SuccessResult({
+          status: response.status,
+          data: response.data,
+        });
       }
     } catch (error) {
+      if (!isAxiosError(error))
+        return new ErrorResult({
+          status: error.status,
+          data: error.response?.data,
+          message: error.message,
+        });
+    }
+    return new ErrorResult({
+      status: 400,
+      data: null,
+      message: '',
+    });
+  }
+  async createOauth2Token(data: BcAuthorizeInput, body: BodyOauth2Token) {
+    const url = 'oauth2/token';
+    const { api_key, user_api } = data;
+
+    const headers = this.headers;
+    headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    headers['Authorization'] = this.setToken(Buffer.from(user_api + ':' + api_key).toString('base64'),'Basic');
+    try {
+      const response = await this.axiosInstance.post<PayloadOauth2>(
+        url,
+        querystring.stringify(body.toObject()),
+        { headers }
+      );
+      if (response.status == 200)
+        return new SuccessResult({
+          status: response.status,
+          data: response.data,
+        });
+    } catch (error) {
+      console.log(error)
+      if (isAxiosError(error))
+        return new ErrorResult({
+          status: error.status,
+          data: error.response.data,
+          message: error.message,
+        });
       // continue regardless of error
     }
-    return null;
+    return new ErrorResult({
+      status: 400,
+      data: null,
+      message: '',
+    });
   }
 
   async getBasicUserInfo(data: RequestGetUserInfoInput) {
     const { user_api, api_key, accountHolderMSISDN } = data;
     const url = `v1_0/accountholder/msisdn/${accountHolderMSISDN}/basicuserinfo`;
-    const authPlayload = await this.createAccessToken({
+    const authPayload = await this.createAccessToken({
       api_key,
       user_api,
     });
 
-    if (!authPlayload.success) return authPlayload;
+    if (isErrorResult(authPayload)) return authPayload;
 
     const headers = this.headers;
-    headers['Authorization'] = this.setToken(authPlayload.data.access_token);
+    headers['Authorization'] = this.setToken(authPayload.data.access_token);
     try {
-      const response = await this.axiosInstance.get<PlayloadUserInfo>(url, {
+      const response = await this.axiosInstance.get<PayloadUserInfo>(url, {
         headers,
       });
-      if (response.status == 200) return {
-        data: response.data,
-        success: true,
-        error: false,
-        message: '',
-        status: response.status
-      }
+      if (response.status == 200)
+        return new SuccessResult({
+          status: response.status,
+          data: response.data,
+        });
     } catch (error) {
-      if(isAxiosError(error))return  {
-        status:error.status,
-        success:true,
-        error:false,
-        data:error.request?.data,
-        message:error.message,
-      }
+      if (isAxiosError(error))
+        return new ErrorResult({
+          status: error.status,
+          data: error.request?.data,
+          message: error.message,
+        });
     }
-    return  {
-      status:400,
-      success:true,
-      error:false,
-      data:null,
-      message:'',
-    }
+    return new ErrorResult({
+      status: 400,
+      data: null,
+      message: '',
+    });
   }
   async validateAccountHolderStatus(data: ValidateAccountHolderStatusInput) {
     const { accountHolderId, accountHolderIdType, user_api, api_key } = data;
-    const authPlayload = await this.createAccessToken({
+    const authPayload = await this.createAccessToken({
       user_api,
       api_key,
     });
-    if (!authPlayload.success) return null;
-    const url = `active`;
+
+    if (isErrorResult(authPayload)) return authPayload;
+
+    const url = `v1_0/accountholder`;
     const headers = this.headers;
-    headers['Authorization'] = this.setToken(authPlayload.data.access_token);
+    headers['Authorization'] = this.setToken(authPayload.data.access_token);
     try {
-       await axios.get(
-        `${url}/${accountHolderIdType}/${accountHolderId}`,
-        { headers }
-      );
-      return true;
+      const response = await this.axiosInstance.get(`${url}/${accountHolderIdType}/${accountHolderId}/active`, {
+        headers,
+      });
+      if (response.status == 200) {
+        return new SuccessResult({
+          status: 200,
+          data: response.data
+        })
+      }
+
     } catch (e) {
-      return false;
+      if (isAxiosError(e)) {
+        return new ErrorResult({
+          status: e.status,
+          message: e.message,
+          data: e.response.data
+        })
+      }
     }
+    return new ErrorResult({
+      status: 400,
+      message: '',
+      data: false
+    })
   }
 
   async getUserInfoWithConsent(data: { readonly Authorization: string }) {
@@ -215,17 +264,32 @@ export class BaseService {
     const headers = this.headers;
     headers['Authorization'] = this.setToken(Authorization);
     try {
-      const response =
-        await this.axiosInstance.get<PlayloadUserinfoWithConsent>(url, {
+      const response = await this.axiosInstance.get<PayloadUserinfoWithConsent>(
+        url,
+        {
           headers,
-        });
+        }
+      );
       if (response.status == 200) {
-        return response.data;
+        return new SuccessResult({
+          data:response.data,
+          status:response.status
+        });
       }
     } catch (error) {
-      // continue regardless of error
+      if(isAxiosError(error))
+     return new ErrorResult({
+      status:error.status,
+      message:error.message,
+      data:error.response.data,
+
+     })
     }
-    return null;
+    return new ErrorResult({
+      status:400,
+      message:'',
+      data:null,
+     })
   }
   async getAccountBalance(data: RequestGetAccountBalanceInput) {
     const { api_key, user_api, currency } = data;
@@ -236,81 +300,32 @@ export class BaseService {
       api_key,
       user_api,
     });
-    if (!auth.success) return auth
+    if (isErrorResult(auth)) return auth;
     const headers = this.headers;
     headers['Authorization'] = this.setToken(auth.data.access_token);
     try {
-      const response = await this.axiosInstance.get<PlayloadBalance>(url, { headers });
+      const response = await this.axiosInstance.get<PayloadBalance>(url, {
+        headers,
+      });
       if (response.status == 200) {
-        return {
-          success:true,
-          error:false,
-          data:response.data,
-          message:'',
-          status:response.status
-        }
+        return new SuccessResult({
+          data: response.data,
+          status: response.status,
+        });
       }
     } catch (e) {
-      if(isAxiosError(e)) return  {
-        success: false,
-        error: true,
-        data: e.request?.data,
-        message: e.message,
-        status:e.status
-      }
-      // continue regardless of error
+      if (isAxiosError(e))
+        return new ErrorResult({
+          data: e.request?.data,
+          message: e.message,
+          status: e.status,
+        });
     }
-    return  {
-      success: false,
-      error: true,
+    return new ErrorResult({
       data: null,
       message: '',
-      status:400
-    }
+      status: 400,
+    });
   }
 }
-export class BaseService2 extends BaseService {
-  async transfer(data: RequestToDepotInput, body: BodyRequestToDepotInput) {
-    const { referenceId, user_api, api_key, callback } = data;
-    const url = 'v1_0/transfer';
-    const headers = this.headers;
-    headers['X-Reference-Id'] = referenceId;
-    headers['X-Callback-Url'] = callback ? callback : this.callback;
-    const authPlayload = await this.createAccessToken({
-      api_key: api_key,
-      user_api: user_api,
-    });
-    if (!authPlayload.success) return null;
-    headers['Authorization'] = this.setToken(authPlayload?.data.access_token);
-    try {
-      const response = await this.axiosInstance.post(url, body, { headers });
-      if (response.status == 202) return true;
-    } catch (error) {
-      // continue regardless of error
-    }
-    return false;
-  }
 
-  async getTransfrStatus(data: RequestToDepotInput) {
-    const { referenceId, user_api, api_key, callback } = data;
-    const url = `v1_0/transfer/${referenceId}`;
-    const headers = this.headers;
-    headers['X-Callback-Url'] = callback ? callback : this.callback;
-    const authPlayload = await this.createAccessToken({
-      api_key: api_key,
-      user_api: user_api,
-    });
-    if (!authPlayload.success) return null;
-    headers['Authorization'] = this.setToken(authPlayload?.data.data.access_token);
-    try {
-      const response = await this.axiosInstance.get<PlayloadRequestToPayResult>(
-        url,
-        { headers }
-      );
-      if (response.status == 200) return response.data;
-    } catch (error) {
-  // continue regardless of error
-}
-    return null;
-  }
-}

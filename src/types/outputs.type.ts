@@ -1,9 +1,9 @@
-export type PlayloadAccessToken = {
+export type PayloadAccessToken = {
   readonly access_token: string;
   readonly token_type: string;
   readonly expires_in: number;
 };
-export type PlayloadOauth2 = PlayloadAccessToken & {
+export type PayloadOauth2 = PayloadAccessToken & {
   readonly scope: string;
   readonly refresh_token: string;
   readonly refresh_token_expired_in: number;
@@ -12,7 +12,7 @@ export type Payer = {
   readonly partyIdType: string;
   readonly partyId: string;
 };
-export type PlayloadBalance = {
+export type PayloadBalance = {
 
     availableBalance: string,
     currency: string
@@ -22,18 +22,18 @@ export type ErrorReason = {
   readonly code: string;
   readonly message: string;
 };
-export type PlayloadRequestToPayResult = {
+export type PayloadRequestToPayResult = {
   readonly amount: string;
   readonly currency: string;
   readonly financialTransactionId: string;
   readonly externalid: string;
-  readonly ppayee: Payer;
+  readonly payee: Payer;
   readonly payerMessage: string;
   readonly payeeNote: string;
   readonly status: string;
   readonly reason: ErrorReason;
 };
-export type PlayloadUserinfoWithConsent = {
+export type PayloadUserinfoWithConsent = {
   readonly sub: string;
   readonly name: string;
   readonly given_name: string;
@@ -59,7 +59,7 @@ export type PlayloadUserinfoWithConsent = {
   readonly identification_type: string;
   readonly identification_value: string;
 };
-export type PlayloadCashTransfer = {
+export type PayloadCashTransfer = {
   readonly payerGender: string;
   readonly payerMsisdn: string;
   readonly payerEmail: string;
@@ -82,7 +82,7 @@ export type PlayloadCashTransfer = {
   readonly status: string;
   readonly financialTransactionId: string;
 };
-export type PlayloadRequestTopay = {
+export type PayloadRequestTopay = {
   readonly amount: string;
   readonly currency: string;
   readonly externalId: string;
@@ -90,7 +90,7 @@ export type PlayloadRequestTopay = {
   readonly payerMessage: string;
   readonly payeeNote: string;
 };
-export type PlayloadUserInfo = {
+export type PayloadUserInfo = {
   readonly given_name: string;
   readonly family_name: string;
   readonly birthdate: string;
@@ -98,13 +98,13 @@ export type PlayloadUserInfo = {
   readonly gender: string;
   readonly status: string;
 };
-export type PlayloadBcauthorizeResponse = {
+export type PayloadAuthorizeResponse = {
   readonly auth_req_id: string;
   readonly interval: string;
   readonly expires_in: string;
 };
 export type PreApprovalResult = Pick<
-  PlayloadRequestTopay,
+  PayloadRequestTopay,
   'payer' | 'payerMessage'
 > & {
   readonly payerCurrency: string;
@@ -118,3 +118,49 @@ export type PaymentResult = {
   readonly financialTransactionId: string;
   readonly reason: ErrorReason;
 };
+
+export type ResultType<T> = {
+  status:number;
+
+  data?: T;
+}
+export type ErrorType<T> = {
+  status:number;
+  message: string;
+  data?: T ;
+}
+export class  SuccessResult<T> {
+  status:number;
+  success: true ;
+  data?: T;
+  constructor(param: ResultType<T>){
+    this.status =param.status;
+    this.data =param.data;
+    this.success =true;
+  }
+};
+
+export class ErrorResult<T>  {
+  status:number;
+  error: true;
+  message: string;
+  data?: T ;
+  constructor(param: ErrorType<T>){
+    this.status =param.status;
+    this.data =param.data;
+    this.error =true;
+  }
+
+};
+export function isSuccessResult<T>(obj: any): obj is SuccessResult<T> {
+  return obj instanceof SuccessResult;
+}
+
+export function isErrorResult<T>(obj: any): obj is ErrorResult<T> {
+  return obj instanceof ErrorResult;
+}
+
+
+
+
+

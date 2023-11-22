@@ -4,15 +4,15 @@ import {
   BodyRequestToRefund,
   RequestToDepotInput
 } from '../types/inputs.type';
-import { PlayloadRequestToPayResult } from '../types/outputs.type';
+import { PayloadRequestToPayResult } from '../types/outputs.type';
 
 import { BaseService2 } from './base.service';
 
 export class Distribution extends BaseService2 {
   /*
-    L'opération de dépôt est utilisée pour déposer un montant du compte 
+    L'opération de dépôt est utilisée pour déposer un montant du compte
     du propriétaire vers un compte du bénéficiaire.
-    Le statut de la transaction peut être validé en utilisant 
+    Le statut de la transaction peut être validé en utilisant
     le GET /deposit/{referenceId}
     */
   async createDepot(data: RequestToDepotInput, body: BodyRequestToDepotInput) {
@@ -47,7 +47,7 @@ export class Distribution extends BaseService2 {
     'X-Callback-Url': callback ? callback : this.callback,
     'Authorization': this.setToken(authPlayload?.access_token)};
     try {
-      const response = await this.axiosInstance.get<PlayloadRequestToPayResult>(
+      const response = await this.axiosInstance.get<PayloadRequestToPayResult>(
         url,
         { headers }
       );
@@ -70,7 +70,7 @@ export class Distribution extends BaseService2 {
     'Authorization': this.setToken(authPlayload?.access_token)
 }
     try {
-      const response = await this.axiosInstance.get<PlayloadRequestToPayResult>(
+      const response = await this.axiosInstance.get<PayloadRequestToPayResult>(
         url,
         { headers }
       );

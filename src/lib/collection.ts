@@ -12,8 +12,8 @@ import {
 } from '../types/inputs.type';
 import {
   PaymentResult,
-  PlayloadRequestToPayResult,
-  PlayloadUserinfoWithConsent,
+  PayloadRequestToPayResult,
+  PayloadUserinfoWithConsent,
   PreApprovalResult
 } from '../types/outputs.type';
 
@@ -21,7 +21,7 @@ import { BaseService } from './base.service';
 
 export class Colloction extends BaseService {
   /*
-  
+
   */
   async requestToPay(data: RequestToPayInput, body: BodyRequestTopayInput) {
     const url = '/v1_0/requesttopay';
@@ -228,7 +228,7 @@ export class Colloction extends BaseService {
       Authorization: this.setToken(Authorization)
     };
     try {
-      const response = await axios.get<PlayloadUserinfoWithConsent>(url, {
+      const response = await axios.get<PayloadUserinfoWithConsent>(url, {
         headers
       });
       if (response.status == 200) {
@@ -258,7 +258,7 @@ export class Colloction extends BaseService {
       Authorization: this.setToken(authPlayload.access_token)
     };
     try {
-      const response = await axios.post<PlayloadRequestToPayResult>(
+      const response = await axios.post<PayloadRequestToPayResult>(
         `${url}/${referenceId}`,
         body,
         {
@@ -287,7 +287,7 @@ export class Colloction extends BaseService {
       Authorization: this.setToken(authPlayload.access_token)
     };
     try {
-      const response = await axios.get<PlayloadRequestToPayResult>(
+      const response = await axios.get<PayloadRequestToPayResult>(
         `${url}/${referenceId}`,
         {
           headers
@@ -315,7 +315,7 @@ export class Colloction extends BaseService {
       Authorization: this.setToken(authPlayload.access_token)
     };
     try {
-      const response = await axios.get<PlayloadRequestToPayResult>(
+      const response = await axios.get<PayloadRequestToPayResult>(
         `${url}/${referenceId}`,
         {
           headers

@@ -1,5 +1,5 @@
 import { Colloction } from './lib/collection';
-import { ProvioningController } from './lib/provisionning';
+import { ProvioningController } from './lib/provisioning';
 
 export * from './lib/number';
 
@@ -20,11 +20,11 @@ async function main() {
   }
   console.log(apikey, userApi);
   const collection = new Colloction({
-    env:'sandbox',
-    baseUrl:'https://sandbox.momodeveloper.mtn.com/collection',
-    subscriptionId:'b0f5afe7e38f499383c49cb472ba60b9',
+    env: 'sandbox',
+    baseUrl: 'https://sandbox.momodeveloper.mtn.com/collection',
+    subscriptionId: 'b0f5afe7e38f499383c49cb472ba60b9',
   });
-   await collection.createAccessToken({
+  await collection.createAccessToken({
     api_key: apikey.apikey,
     user_api: userApi.userApi,
   });
