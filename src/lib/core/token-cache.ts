@@ -3,7 +3,8 @@
 import { AxiosRequestConfig } from "axios";
 import { AccessToken } from "./access_token";
 import { Environment, ProductTypeOption } from "./environement";
-const EventEmitter = require('events').EventEmitter;
+import { EventEmitter } from "stream";
+
 
 const _cacheMap = {};
 
