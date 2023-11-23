@@ -14,7 +14,7 @@ export class BcAuthorize extends RemittanceObject {
    * @param {string} callbackURL - Call back URL | Optional
    *
    */
-  constructor(msisdn: string, scope: string='profile', access_type: "offline"| "online", callbackURL?: string) {
+  constructor(msisdn: string, scope: string='profile', access_type: "offline"| "online"='offline', callbackURL?: string) {
     super();
     let body = {
       login_hint: `ID:${msisdn}/MSISDN`,
@@ -23,7 +23,7 @@ export class BcAuthorize extends RemittanceObject {
     };
 
     this.url = "/remittance/v1_0/bc-authorize";
-    this.method = "post";
+    this.method = 'post';
     this.data = new FormEncoded().encode(body);
     this.headers = new AxiosHeaders();
     this.headers.setContentType('application/x-www-form-urlencoded')

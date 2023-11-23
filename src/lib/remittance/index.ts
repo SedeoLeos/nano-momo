@@ -7,7 +7,7 @@ import { GetAccountBalance } from "./GetAccountBalance";
 import { GetBasicUserinfo } from "./GetBasicUserinfo";
 import { GetTransferStatus } from "./GetTransferStatus";
 import { GetUserInfoWithConsent } from "./GetUserInfoWithConsent";
-import { RequestToPayDeliveryNotification } from "./RequesttoPayDeliveryNotification";
+
 import { Transfer } from "./Transfer";
 import { ValidateAccountHolderStatus } from "./ValidateAccountHolderStatus";
 
@@ -84,37 +84,15 @@ export class Remittance {
     return _response;
   }
 
-  /**
-   * @param {uuid} referenceId - UUID of transaction - Reference id used when creating the request to pay.
-   * @param {string} notificationMessage - The message to send in the delivery notification | Max length 160
-   * @param {string} language - An ISO 639-1 or ISO 639-3 language code
-   *
-   * @returns {Promise<RequestToPayDeliveryNotification>}
-   */
-  async requestToPayDeliveryNotification(
-    referenceId: string,
-    notificationMessage: string,
-    language: string
-  ): Promise<RequestToPayDeliveryNotification> {
-    let _request = new RequestToPayDeliveryNotification(
-      referenceId,
-      notificationMessage,
-      language
-    );
-    let _response = await this._client.execute(_request);
-    _response.data = {
-      status: true,
-    };
-    return _response;
-  }
+
 
   /**
    * @param {uuid} referenceId - UUID of transaction - Reference id used when creating the request to pay.
    * @param {object} body - Request body
    *
-   * @returns {Promise<RequestToPayDeliveryNotification>}
+   * @returns {Promise<Transfer>}
    */
-  async transfer(referenceId: string, body: object, callback): Promise<RequestToPayDeliveryNotification> {
+  async transfer(referenceId: string, body: object, callback:string): Promise<Transfer> {
     let _request = new Transfer(referenceId);
 
     if (callback) {
@@ -134,9 +112,9 @@ export class Remittance {
    * @param {uuid} referenceId - UUID of transaction - Reference id used when creating the request to pay.
    * @param {object} body - An ISO 639-1 or ISO 639-3 language code
    *
-   * @returns {Promise<RequestToPayDeliveryNotification>}
+   * @returns {Promise<ValidateAccountHolderStatus>}
    */
-  async validateAccountHolderStatus(accountHolderId:string, accountHolderIdType:string): Promise<RequestToPayDeliveryNotification> {
+  async validateAccountHolderStatus(accountHolderId:string, accountHolderIdType:string): Promise<ValidateAccountHolderStatus> {
     let _request = new ValidateAccountHolderStatus(
       accountHolderId,
       accountHolderIdType

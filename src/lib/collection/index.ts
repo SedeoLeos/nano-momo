@@ -1,12 +1,19 @@
 import { Environment } from "../core/environement";
 import { MMApiHttpClient } from "../core/momo-client";
 import { BcAuthorize } from "./BcAuthorize";
+import { CancelInvoice, CancelInvoiceBody } from "./CancelInvoice";
 import { CreateAccessToken } from "./CreateAccessToken";
+import { CreateInvoice, CreateInvoiceBody } from "./CreateInvoice";
 import { CreateOauth2Token } from "./CreateOauth2Token";
+import { CreatePayment, CreatePaymentsBody } from "./CreatePayment";
 import { GetAccountBalance } from "./GetAccountBalance";
 import { GetAccountBalanceInSpecificCurrency } from "./GetAccountBalanceInSpecificCurrency";
 import { GetBasicUserinfo } from "./GetBasicUserinfo";
+import { GetInvoice } from "./GetInvoice";
+import { GetPayment } from "./GetPayment";
+import { GetPreApprovalStatus } from "./GetPreApprovalStatus";
 import { GetUserInfoWithConsent } from "./GetUserInfoWithConsent";
+import { PreApproval, PreApprovalBody } from "./PreApproval";
 import { RequestToPay } from "./RequestToPay";
 import { RequestToPayDeliveryNotification } from "./RequestToPayDeliveryNotification";
 import { RequestToPayTransactionStatus } from "./RequestToPayTransactionStatus";
@@ -76,7 +83,7 @@ export class Collection {
    *
    * @returns {Promise<GetAccountBalance>}
    */
-  async getAccountBalance() {
+  async getAccountBalance(): Promise<GetAccountBalance> {
     let _request = new GetAccountBalance();
     return await this._client.execute(_request);
   }
@@ -133,7 +140,7 @@ export class Collection {
    * @returns {Promise<RequestToPayDeliveryNotification>}
    */
   async requestToPayDeliveryNotification(referenceId: string, message: string, language: string): Promise<RequestToPayDeliveryNotification> {
-    let _request = new RequestToPayDeliveryNotification(
+    const _request = new RequestToPayDeliveryNotification(
       referenceId,
       message,
       language
@@ -144,7 +151,63 @@ export class Collection {
     };
     return _response;
   }
+  /**
+   * @param {uuid} referenceId - UUID of transaction to get result. An id to uniquely identify the cancelling an Invoice
+   * @param {CancelInvoiceBody} option - The additional options required for the invoice request
+   * @param {string} option.externalId
+   * @returns {Promise<CancelInvoice>}
+   */
+  async cancelInvoice(referenceId:string,referenceId2:string,option:CancelInvoiceBody): Promise<CancelInvoice>{
+    const _request = new CancelInvoice(referenceId,referenceId2,option);
+    const _response = await this._client.execute(_request);
+    return _response;
+  }
+  /**
+   * @param {uuid} referenceId - Format - UUID. An id to uniquely identify the making of an invoice
+   * @param {CreateInvoiceBody} option - The additional options required for the invoice request
+   * @param {string} option.externalId
+   * @returns {Promise<CreateInvoice>}
+   */
+  async createInvoice(referenceId:string,option:CreateInvoiceBody): Promise<CreateInvoice>{
+    const _request =new CreateInvoice(referenceId,option);
+    const _response = await this._client.execute(_request);
 
+    return _response;
+  }
+  async getInvoice(referenceId:string){
+    const _request = new GetInvoice(referenceId);
+    const _response = await this._client.execute(_request);
+
+    return _response;
+  }
+
+  /*
+  */
+ async createPayment(referenceId:string,options:CreatePaymentsBody){
+  const _request = new CreatePayment(referenceId,options);
+  const _response = await this._client.execute(_request);
+
+    return _response;
+ }
+ /**/
+ async getPayment(referenceId:string){
+  const _request = new GetPayment(referenceId);
+  const _response = await this._client.execute(_request);
+
+  return _response;
+ }
+
+ /**/
+async preapproval(referenceId:string,option:PreApprovalBody){
+  const _request = new PreApproval(referenceId,option);
+  const _response = await this._client.execute(_request);
+  return _response;
+}
+async getPreapproval(referenceId:string){
+  const _request = new GetPreApprovalStatus(referenceId);
+  const _response = await this._client.execute(_request);
+  return _response;
+}
   /**
    *
    * @param {uuid} referenceId - A unique reference ID for the withdraw request, UUID v4 preferred

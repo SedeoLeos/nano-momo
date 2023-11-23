@@ -18,12 +18,12 @@ export class CreateOauth2Token extends CoreRequest {
       grant_type: "urn:openid:params:grant-type:ciba",
       auth_req_id: auth_req_id,
     };
-    this.url = "/disbursement/oauth2/token/";
+    this.url = "/disbursement/oauth2/token";
     this.method = "post";
     this.data = new FormEncoded().encode(body);
     this.headers = new AxiosHeaders();
     this.headers.setContentType('application/x-www-form-urlencoded');
-    this.headers.setAuthorization(environment.options.subscription_key);
+    this.headers.setAuthorization(environment.authorizationString());
     this.headers.set('Ocp-Apim-Subscription-Key',environment.options.subscription_key)
 
   }

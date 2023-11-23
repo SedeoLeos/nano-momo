@@ -4,5 +4,13 @@
   "editor.formatOnSave": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "cSpell.words": ["Apim"]
+  "cSpell.words": [
+    "Apim",
+    "ciba",
+    "environement",
+    "msisdn",
+    "preapproval",
+    "requesttopay",
+    "requesttowithdraw"
+  ]
 }

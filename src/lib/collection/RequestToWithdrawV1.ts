@@ -1,10 +1,22 @@
 import { AxiosHeaders } from "axios";
 import { CoreRequest } from "../core/core-request";
 
+type RequestToWithdrawV1Body = {
+  amount: string;
+  currency: string;
+  externalId: string;
+  payerMessage: string;
+  payeeNote: string;
+  payer: Payer;
+}
+type Payer = {
+  partyIdType: string;
+  partyId: string;
+}
 /**
  * An OAuth2 client credentials grant access token request
  */
-export class RequestToWithdrawV1 extends CoreRequest{
+export class RequestToWithdrawV1 extends CoreRequest {
   /**
    * @param {uuid} referenceId - A unique reference ID for the withdraw request, UUID v4 preferred
    * @param {object} options - The additional options required for the withdraw request
@@ -17,14 +29,14 @@ export class RequestToWithdrawV1 extends CoreRequest{
    * @param {string} options.payerMessage - Message that will be written in the payer transaction history message field
    * @param {string} options.payeeNote - Message that will be written in the payee transaction history note field
    */
-  constructor(referenceId:string, options) {
+  constructor(referenceId: string, options: RequestToWithdrawV1Body) {
     super()
     this.url = "/collection/v1_0/requesttowithdraw";
     this.method = "post";
     this.data = options;
-    this.headers =new AxiosHeaders();
+    this.headers = new AxiosHeaders();
     this.headers.setContentType('application/json')
-    this.headers.set('X-Reference-Id',referenceId)
+    this.headers.set('X-Reference-Id', referenceId)
 
   }
 }

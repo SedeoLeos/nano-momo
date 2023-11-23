@@ -14,7 +14,7 @@ import { GetTransferStatus } from "./GetTransferStatus";
 import { GetUserInfoWithConsent } from "./GetUserInfoWithConsent";
 import { RefundV1 } from "./RefundV1";
 import { RefundV2 } from "./RefundV2";
-import { RequestToPayDeliveryNotification } from "./RequestToPayDeliveryNotification";
+
 import { Transfer } from "./Transfer";
 import { ValidateAccountHolderStatus } from "./ValidateAccountHolderStatus";
 
@@ -63,6 +63,7 @@ export class Disbursement {
       this._client.environment,
       _responseA.data.auth_req_id
     );
+    console.log(_requestB);
     let _responseB = await this._client.execute(_requestB);
     let _request = new GetUserInfoWithConsent(
       this._client.environment,
@@ -126,25 +127,7 @@ export class Disbursement {
     return await this._client.execute(_request);
   }
 
-  /**
-   * This operation is used to send additional Notification to an End User
-   * @param {uuid} referenceId - The unique reference ID of the payment request
-   * @param {string} message - The message to send in the delivery notification | Max length 160
-   * @param {string} language - An ISO 639-1 or ISO 639-3 language code | Optional
-   * @returns {Promise<RequestToPayDeliveryNotification>}
-   */
-  async requestToPayDeliveryNotification(referenceId: string, message: string, language: string): Promise<RequestToPayDeliveryNotification> {
-    let _request = new RequestToPayDeliveryNotification(
-      referenceId,
-      message,
-      language
-    );
-    let _response = await this._client.execute(_request);
-    _response.data = {
-      status: true,
-    };
-    return _response;
-  }
+
 
   /**
    * This operation is used to check if an account holder is registered and active in the system

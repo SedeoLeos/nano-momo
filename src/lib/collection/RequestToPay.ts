@@ -1,6 +1,17 @@
 import { AxiosHeaders } from "axios";
 import { CoreRequest } from "../core/core-request";
-
+type RequestToPayBody = {
+  amount: string;
+  currency: string;
+  externalId: string;
+  payerMessage: string;
+  payeeNote: string;
+  payer: Payer;
+}
+type Payer = {
+  partyIdType: string;
+  partyId: string;
+}
 /**
  * An OAuth2 client credentials grant access token request
  */
@@ -17,7 +28,7 @@ export class RequestToPay extends CoreRequest{
    * @param {string} options.payerMessage - Message that will be written in the payer transaction history message field
    * @param {string} options.payeeNote - Message that will be written in the payee transaction history note field
    */
-  constructor(referenceId:string, options) {
+  constructor(referenceId:string, options:RequestToPayBody) {
     super();
     this.url = '/collection/v1_0/requesttopay';
     this.method = 'post';
