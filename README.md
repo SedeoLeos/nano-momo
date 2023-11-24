@@ -1,3 +1,15 @@
-# nano-momo
+# SDK Momo Develloper by nanocreatives
 
-Api momo for nano creatives
+
+
+`git clone <REPOSITORY> momo-sdk-nano`
+
+**Get Startings**
+
+```
+cd momo-sdk-nano 
+
+yarn 
+
+nano .env
+```
