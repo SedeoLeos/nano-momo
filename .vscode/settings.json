@@ -6,11 +6,22 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "cSpell.words": [
     "Apim",
+    "AREG",
+    "cashtransfer",
     "ciba",
+    "CPFA",
+    "DRLC",
+    "EMID",
     "environement",
+    "IDCD",
     "msisdn",
+    "NRIN",
+    "orginating",
+    "OTHR",
     "preapproval",
     "requesttopay",
-    "requesttowithdraw"
+    "requesttowithdraw",
+    "SOCS",
+    "SRSSA"
   ]
 }

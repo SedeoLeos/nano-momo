@@ -1,10 +1,12 @@
 import { Environment } from "../core/environement";
 import { MMApiHttpClient } from "../core/momo-client";
 import { BcAuthorize } from "./BcAuthorize";
+import { CashTransfer, CashTransferBody } from "./CashTransfer";
 import { CreateAccessToken } from "./CreateAccessToken";
 import { CreateOauth2Token } from "./CreateOauth2Token";
 import { GetAccountBalance } from "./GetAccountBalance";
 import { GetBasicUserinfo } from "./GetBasicUserinfo";
+import { GetCashTransferStatus } from "./GetCashTransferStatus";
 import { GetTransferStatus } from "./GetTransferStatus";
 import { GetUserInfoWithConsent } from "./GetUserInfoWithConsent";
 
@@ -84,7 +86,25 @@ export class Remittance {
     return _response;
   }
 
-
+  /**
+   * @param {string} referenceId
+   * @return {Promise<GetCashTransferStatus>}
+   **/
+  async getCashTransferStatus(referenceId:string): Promise<GetCashTransferStatus>{
+    const _request = new GetCashTransferStatus(referenceId);
+    const _response = this._client.execute(_request);
+    return _response;
+  }
+  /**
+   * @param {string} referenceId
+   * @param {CashTransferBody} option
+   * @return {Promise<CashTransfer>}
+   **/
+  async cashTransfer(referenceId:string,option:CashTransferBody): Promise<CashTransfer>{
+    const _request = new CashTransfer(referenceId,option);
+    const _response = this._client.execute(_request);
+    return _response;
+  }
 
   /**
    * @param {uuid} referenceId - UUID of transaction - Reference id used when creating the request to pay.
